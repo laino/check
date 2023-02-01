@@ -48,7 +48,13 @@ elif [ "$1" == "rotate" ]; then
 
 elif [ -z "$1" ]; then
 
-    exec more current.txt
+    (
+        echo "MOST RECENT FIRST"
+        echo "-----------------"
+        echo
+
+        tac current.txt
+    ) | less
 
 else
 
