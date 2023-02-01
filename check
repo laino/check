@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 SOURCE=${BASH_SOURCE[0]}
 while [ -L "$SOURCE" ]; do
@@ -8,25 +9,50 @@ while [ -L "$SOURCE" ]; do
 done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
-commit() {
-    git commit -m "${1}"
-}
+cd ${DIR}
 
 if [ "$1" == "git" ]; then
+
     exec git ${@:2}
+
 elif [ "$1" == "out" ]; then
-    echo "OUT $(date --rfc-3339=seconds)" >> ${DIR}/current.txt
-    commit "checked out"
+
+    TIME="OUT $(date --rfc-3339=seconds)"
+
+    echo "${TIME}" >> current.txt
+
+    git reset > /dev/null
+    git add current.txt
+    git commit -m "${TIME}"
+
 elif [ "$1" == "in" ]; then
-    echo "IN $(date --rfc-3339=seconds)" >> ${DIR}/current.txt
-    commit "checked in"
+
+    TIME="IN $(date --rfc-3339=seconds)"
+    
+    echo "${TIME}" >> current.txt
+
+    git reset > /dev/null
+    git add current.txt
+    git commit -m "${TIME}"
+
 elif [ "$1" == "rotate" ]; then
-    cat ${DIR}/current.txt >> ${DIR}/$(date --rfc-3339=date).txt
-    touch ${DIR}/current.txt
-    commit "rotated"
+
+    TODAY_TXT=$(date --rfc-3339=date).txt
+    cat current.txt >> ${TODAY_TXT}
+    : > current.txt
+
+    git reset > /dev/null
+    git add current.txt
+    git add ${TODAY_TXT}
+    git commit -m "ROTATE"
+
 elif [ -z "$1" ]; then
-    exec more ${DIR}/current.txt
+
+    exec more current.txt
+
 else
+
     echo "Unknown argument: $1"
     exit 1
+
 fi
