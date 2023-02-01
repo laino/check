@@ -17,7 +17,7 @@ if [ "$1" == "git" ]; then
 
 elif [ "$1" == "out" ]; then
 
-    TIME="OUT $(date --rfc-3339=seconds)"
+    TIME="$(date --rfc-3339=seconds) OUT"
 
     echo "${TIME}" >> current.txt
 
@@ -27,7 +27,7 @@ elif [ "$1" == "out" ]; then
 
 elif [ "$1" == "in" ]; then
 
-    TIME="IN $(date --rfc-3339=seconds)"
+    TIME="$(date --rfc-3339=seconds) IN"
     
     echo "${TIME}" >> current.txt
 
