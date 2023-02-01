@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do
+    DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+    SOURCE=$(readlink "$SOURCE")
+    [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE
+done
+DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+
+commit() {
+    git commit -m "${1}"
+}
+
+if [ "$1" == "git" ]; then
+    exec git ${@:2}
+elif [ "$1" == "out" ]; then
+    echo "OUT $(date --rfc-3339=seconds)" >> ${DIR}/current.txt
+    commit "checked out"
+elif [ "$1" == "in" ]; then
+    echo "IN $(date --rfc-3339=seconds)" >> ${DIR}/current.txt
+    commit "checked in"
+elif [ "$1" == "rotate" ]; then
+    cat ${DIR}/current.txt >> ${DIR}/$(date --rfc-3339=date).txt
+    touch ${DIR}/current.txt
+    commit "rotated"
+elif [ -z "$1" ]; then
+    exec more ${DIR}/current.txt
+else
+    echo "Unknown argument: $1"
+    exit 1
+fi
