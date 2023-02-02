@@ -9,7 +9,7 @@ Clone this repository, create an alias/symlink to ``check``, and use like this:
 # Check current period
 check
 
-# Check in. Appends checkout time to current.txt and creates a commit.
+# Check in. Appends checkin time to current.txt and creates a commit.
 check in
 
 # Check out. Appends checkout time to current.txt and creates a commit.
