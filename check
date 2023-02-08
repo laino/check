@@ -11,11 +11,11 @@ DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
 cd ${DIR}
 
-if [ "$1" == "git" ]; then
+if [ "$1" = "git" ]; then
 
     exec git ${@:2}
 
-elif [ "$1" == "out" ]; then
+elif [ "$1" = "out" ]; then
 
     TIME="$(date --rfc-3339=seconds) OUT"
 
@@ -25,7 +25,7 @@ elif [ "$1" == "out" ]; then
     git add current.txt
     git commit -m "${TIME}"
 
-elif [ "$1" == "in" ]; then
+elif [ "$1" = "in" ]; then
 
     TIME="$(date --rfc-3339=seconds) IN"
     
@@ -35,7 +35,7 @@ elif [ "$1" == "in" ]; then
     git add current.txt
     git commit -m "${TIME}"
 
-elif [ "$1" == "rotate" ]; then
+elif [ "$1" = "rotate" ]; then
 
     TODAY_TXT=$(date --rfc-3339=date).txt
     cat current.txt >> ${TODAY_TXT}
@@ -46,14 +46,67 @@ elif [ "$1" == "rotate" ]; then
     git add ${TODAY_TXT}
     git commit -m "ROTATE"
 
-elif [ -z "$1" ]; then
+elif [ "$1" = "sum" ]; then
+    
+    file="current.txt"
+
+    if [ ! -z "$2" ]; then
+        file="$2"
+    fi
+
+    cat "${file}" | sort | {
+        sum=0
+        last=""
+
+        while read line; do
+            arr=($line)
+            timestamp=$(date --date "${arr[0]} ${arr[1]}" +%s)
+
+            if [ "${arr[2]}" = "${last[2]}" ]; then
+                echo "Problem in ${file}:" > /dev/stderr
+                echo "> ${last[*]}" > /dev/stderr
+                echo "> ${arr[*]}" > /dev/stderr
+                exit 1
+            fi
+
+            if [ "${arr[2]}" = "IN" ]; then
+                let sum=${sum}-${timestamp}
+            else
+                let sum=${sum}+${timestamp}
+            fi
+
+            last=($line)
+        done;
+
+        if [ "${last[2]}" = "IN" ]; then
+            let sum=${sum}+$(date +%s)
+        fi
+
+        let hours=${sum}/60/60
+        let minutes=${sum}/60%60
+        let seconds=${sum}%60
+
+        echo ${hours}:${minutes}:${seconds}
+    }
+
+elif [ "$1" = "list" ]; then
+
+    ls *.txt
+
+elif [ "$1" = "show" ] || [ -z "$1" ]; then
+
+    file="current.txt"
+
+    if [ ! -z "$2" ]; then
+        file="$2"
+    fi
 
     (
         echo "MOST RECENT FIRST"
         echo "-----------------"
         echo
 
-        tac current.txt
+        tac ${file}
     ) | less
 
 else
