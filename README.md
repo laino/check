@@ -6,7 +6,7 @@ Simple time tracking software using bash and git.
 Clone this repository, create an alias/symlink to ``check``, and use like this:
 
 ```bash
-# Show current period (curren.txt)
+# Show current period (current.txt)
 check
 
 # Check in. Appends checkin time to current.txt and creates a commit.
