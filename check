@@ -70,21 +70,21 @@ elif [ "$1" = "sum" ]; then
             fi
 
             if [ "${arr[2]}" = "IN" ]; then
-                let sum=${sum}-${timestamp}
+                let sum=${sum}-${timestamp} || true
             else
-                let sum=${sum}+${timestamp}
+                let sum=${sum}+${timestamp} || true
             fi
 
             last=($line)
         done;
 
         if [ "${last[2]}" = "IN" ]; then
-            let sum=${sum}+$(date +%s)
+            let sum=${sum}+$(date +%s) || true
         fi
 
-        let hours=${sum}/60/60
-        let minutes=${sum}/60%60
-        let seconds=${sum}%60
+        let hours=${sum}/60/60 || true
+        let minutes=${sum}/60%60 || true
+        let seconds=${sum}%60 || true
 
         printf "%d:%02d:%02d\n" ${hours} ${minutes} ${seconds}
     }
